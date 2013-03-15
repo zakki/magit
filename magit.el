@@ -902,13 +902,15 @@ Read `completing-read' documentation for the meaning of the argument"
   (insert (magit-cmd-output cmd args)))
 
 (defun magit-cmd-output (cmd args)
+  (let ((coding-system-for-write 'utf-8)
+        (coding-system-for-read 'utf-8))
   (let ((cmd-output (with-output-to-string
                       (with-current-buffer standard-output
                         (apply #'process-file
                                cmd
                                nil (list t nil) nil
                                args)))))
-    (ansi-color-apply cmd-output)))
+    (ansi-color-apply cmd-output))))
 
 (defun magit-git-string (&rest args)
   (magit-trim-line (magit-git-output args)))
@@ -2074,6 +2076,9 @@ magit-topgit and magit-svn"
 
 (defun magit-run* (cmd-and-args
                    &optional logline noerase noerror nowait input)
+  (let ((coding-system-for-write 'utf-8)
+        (coding-system-for-read 'utf-8))
+
   (if (and magit-process
            (get-buffer magit-process-buffer-name))
       (error "Git is already running"))
@@ -2163,7 +2168,7 @@ magit-topgit and magit-svn"
              (key-description (car (where-is-internal
                                     'magit-display-process))))
            magit-process-buffer-name))
-      successp)))
+      successp))))
 
 (autoload 'dired-uncache "dired")
 (defun magit-process-sentinel (process event)
@@ -2208,6 +2213,8 @@ magit-topgit and magit-svn"
                           "\n"))))
 
 (defun magit-process-filter (proc string)
+  (let ((coding-system-for-write 'utf-8)
+        (coding-system-for-read 'utf-8))
   (save-current-buffer
     (set-buffer (process-buffer proc))
     (let ((inhibit-read-only t))
@@ -2225,7 +2232,7 @@ magit-topgit and magit-svn"
                (insert (substring string (+ ret-pos 1))))
               (t
                (insert string))))
-      (set-marker (process-mark proc) (point)))))
+      (set-marker (process-mark proc) (point))))))
 
 (defun magit-run (cmd &rest args)
   (magit-with-refresh
